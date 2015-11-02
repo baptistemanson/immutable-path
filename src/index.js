@@ -34,12 +34,12 @@ c.parsePath = function(path) {
 }
 
 c.path = function(state,pathstring,func) {
-    return c.pathWithTable(state,c.parsePath(pathstring),func);
+    return c.pathWithArray(state,c.parsePath(pathstring),func);
 
 }
 
-c.pathWithTable = function(state,selectors,func) {
-    console.log('called', state, ':', selectors);
+c.pathWithArray = function(state,selectors,func) {
+    //console.log('called', state, ':', selectors);
     let currentSelector = selectors[0];
     if(getSelectorType(currentSelector) == 'MAP') {
         return c.recMap(state,selectors,func)
@@ -51,15 +51,14 @@ c.pathWithTable = function(state,selectors,func) {
 
 
 c.recFilter = function(state,selectors,func) {
-    //if(!Array.isArray(state)) throw 'Filtering only works on arrays'
-    console.log('calling recFilter with',state,':',selectors)
+    //console.log('calling recFilter with',state,':',selectors)
     let filter = parseFilter(selectors[0])
-    selectors.shift()
-    console.log(filter);
+    let s = selectors.slice();
+    s.shift();
     if(state[filter.field] != filter.value) {
         return state
     }
-    return c.pathWithTable(state,selectors,func )
+    return c.pathWithArray(state,s,func)
 }
 
 // call it on a POJO structure to get a new structure with a path of selectors.
@@ -88,10 +87,10 @@ c.recMap = function(state, selectors, func) {
             selectors.shift();
             //array/object
             if (Array.isArray(state[currentSelector])) {
-                output[currentSelector] = (state[currentSelector]).map(element => c.pathWithTable(element, selectors, func));
+                output[currentSelector] = (state[currentSelector]).map(element => c.pathWithArray(element, selectors, func));
             } 
             else {
-                output[currentSelector] = c.pathWithTable(state[currentSelector], selectors, func);
+                output[currentSelector] = c.pathWithArray(state[currentSelector], selectors, func);
             }
             return c.dup(state, output);
         } else {
