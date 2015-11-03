@@ -43,7 +43,7 @@ describe('immutable path', () => {
         };
         deepFreeze(state);
 
-        var newState = c.path(state, 'level1.level22[id=1].val', x => x + 10);
+        var newState = c.map(state, 'level1.level22[id=1].val', x => x + 10);
         debug(newState)
 
         expect(_.isEqual(newState, expectedNewState)).toBe(true);

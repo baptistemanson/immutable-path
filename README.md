@@ -8,7 +8,7 @@ Use at your own risk, this lib is really a work in progress.
 ## Usage
 
 ```javascript
-var path = require('immutable-path').path;
+var path = require('immutable-path');
 
 let state = {
             app: {
@@ -24,7 +24,7 @@ let state = {
                 }]
             }
         };
-  let newState = path(state, 'app.todos[id=1].priority', x => x + 10 );
+  let newState = path.map(state, 'app.todos[id=1].priority', x => x + 10 );
 
   /* newState is now {
             app: {
@@ -48,7 +48,7 @@ You can also extract elements with this lib, like so:
 ### Extract elements
 
 ```javascript
-var extract = require('immutable-path').extract;
+var path = require('immutable-path');
 
 let state = {
             app: {
@@ -68,7 +68,7 @@ let state = {
                 }]
             }
         };
-  let extracted = extract(state, 'app.todos[priority=1])';
+  let extracted = path.extract(state, 'app.todos[priority=1])';
 
   /*
     extracted.state = {
@@ -96,5 +96,5 @@ let state = {
   ```
   then simply add this require statement in your file:
   ```javascript
-  var path = require('immutable-path').path;
+  var path = require('immutable-path');
   ```

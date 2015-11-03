@@ -130,7 +130,7 @@ c.parsePath = function(path) {
  * Redux & React compatible.
  *
  */
-c.path = function(state, pathstring, func) {
+c.map = function(state, pathstring, func) {
     return c.pathWithArray(state, c.parsePath(pathstring), func, 'map');
 
 }
