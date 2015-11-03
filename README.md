@@ -48,7 +48,8 @@ newState will contain:
 
 One can also extract elements with this lib, like so:
 
-```javascript
+### Extract elements
+
 ```javascript
 var extract = require('immutable-path').extract;
 
@@ -83,23 +84,6 @@ let state = {
     newExtractedElements.elements = [{id: 1,val: 1}];
 
    */
-  
-```
-let state = {
-            level1: {
-                level21: {
-                    level3: 3
-                },
-                level22: [{
-                    id: 1,
-                    val: 1
-                }, {
-                    id: 2,
-                    val: 2
-                }]
-            }
-        };
-  let newState = path(state, 'level1.level22[id=1].val', x => x + 10);
   
 ```
 
