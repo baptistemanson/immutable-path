@@ -1,6 +1,7 @@
 # immutable-path
 Immutable path is a simple xpath-like tool, for handling POJO as immutables.
 
+Use at your own risk, this lib is really a work in progress.
 
 ## Usage
 
