@@ -11,42 +11,39 @@ Use at your own risk, this lib is really a work in progress.
 var path = require('immutable-path').path;
 
 let state = {
-            level1: {
-                level21: {
-                    level3: 3
+            app: {
+                general: {
+                    visibilityFilter: 'all'
                 },
-                level22: [{
+                todos: [{
                     id: 1,
-                    val: 1
+                    priority : 1
                 }, {
                     id: 2,
-                    val: 2
+                    priority: 2
                 }]
             }
         };
-  let newState = path(state, 'level1.level22[id=1].val', x => x + 10);
-  
-```
+  let newState = path(state, 'app.todos[id=1].priority', x => x + 10 );
 
-newState will contain:
-```javascript
-{
-            level1: {
-                level21: {
-                    level3: 3
+  /* newState is now {
+            app: {
+                general: {
+                    visibilityFilter: 'all'
                 },
-                level22: [{
+                todos: [{
                     id:1,
-                    val: 11
+                    priority: 11
                 }, {
                     id: 2,
-                    val: 2
+                    priority: 2
                 }]
             }
         };
+        */
   ```
 
-One can also extract elements with this lib, like so:
+You can also extract elements with this lib, like so:
 
 ### Extract elements
 
@@ -54,34 +51,38 @@ One can also extract elements with this lib, like so:
 var extract = require('immutable-path').extract;
 
 let state = {
-            level1: {
-                level21: {
-                    level3: 3
+            app: {
+                general: {
+                    visibilityFilter: 'all'
                 },
-                level22: [{
+                todos: [{
                     id: 1,
-                    val: 1
+                    priority: 1
                 }, {
                     id: 2,
-                    val: 2
+                    priority: 2
+                },
+                {
+                    id: 3,
+                    priority: 1
                 }]
             }
         };
-  let newExtractedElements = extract(state, 'level1.level22[id=1]';
+  let extracted = extract(state, 'app.todos[priority=1])';
 
   /*
-    newExtractedElements.state = {
-            level1: {
-                level21: {
-                    level3: 3
+    extracted.state = {
+            app: {
+                general: {
+                    visibilityFilter: 'all'
                 },
-                level22: [{
+                todos: [{
                     id: 2,
-                    val: 2
+                    priority: 2
                 }]
             }
         };
-    newExtractedElements.elements = [{id: 1,val: 1}];
+    extracted.elements = [{id: 1,priority: 1}, {id: 3,priority: 1}];
 
    */
   
