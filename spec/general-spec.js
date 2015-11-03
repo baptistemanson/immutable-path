@@ -99,6 +99,28 @@ describe('immutable path', () => {
         expect(_.isEqual(filteredElement.state, expectedNewState)).toBe(true);
 
 
-    })
+    });
+    it('finds elements', () => {
+        let state = {
+            level1: {
+                level21: {
+                    level3: 3
+                },
+                level22: [{
+                    id: 1,
+                    val: 1
+                }, {
+                    id: 2,
+                    val: 2
+                }, {
+                    id: 3,
+                    val: 1
+                }]
+            }
+        };
+        expect(c.find(state,'level1.level22[id=1].val')).toEqual([1]);
+        expect(c.find(state,'level1.level21.level3')).toEqual([3]);
+        expect(c.find(state,'level1.level22[val=1]')).toEqual([{id:1,val:1},{id:3,val:1}]);
+    });
 
 });

@@ -1,7 +1,8 @@
 # immutable-path
 Immutable path is a simple xpath-like tool, for handling POJO as immutables.
 
-It is useful for libraries like redux.
+It is useful for libraries like redux, which promotes immutability, but doesn't provide tools to do so.
+Avoids callback hell at the expense of a bit of speed in state change.
 
 Use at your own risk, this lib is really a work in progress.
 
@@ -86,6 +87,15 @@ let state = {
 
    */
   
+```
+### Find elements
+
+```javascript
+//with the same dataset
+let found = path.find(state, 'app.todos[priority=1])';
+/*
+    found = [{id:1,priority:1},{id:3,priority:3}];
+*/
 ```
 
 ## Install with NPM

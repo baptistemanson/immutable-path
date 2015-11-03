@@ -14,6 +14,8 @@ function getSelectorType(selector) {
     return 'MAP';
 }
 
+// FILTERS UTILITIES
+
 /*
  * Returns {field:'key',value:'val'} when given '[key=val]'
  */
@@ -26,10 +28,9 @@ function parseFilter(selector) {
     };
 }
 
-var filter = function(element, filterString) {
+var filterApply = function(element, filterString) {
     let filter = parseFilter(filterString);
     return element[filter.field] == filter.value;
-
 }
 
 /*
@@ -40,12 +41,18 @@ var recFilter = function(state, selectors, func, flag) {
     //console.log('calling recFilter with state', state, ':', selectors)
     let s = selectors.slice();
     s.shift();
-    if (filter(state, selectors[0])) {
+    if (filterApply(state, selectors[0])) {
         return c.pathWithArray(state, s, func, flag)
     }
     return state
 }
 
+
+var filterCurried = function(filterString) {
+    return function(x) {
+        return filterApply(x, filterString);
+    }
+}
 
 
 /*
@@ -94,7 +101,28 @@ var recMap = function(state, selectors, func, flag) {
 }
 
 
-/** PUBLIC FUNCTIONS */
+var recFind = function(state, selectors) {
+
+        let currentSelector = selectors[0];
+        if (selectors.length == 1) { //termination
+            if (getSelectorType(currentSelector) == 'FILTER') {
+                return state.filter(filterCurried(currentSelector));
+            } else {
+                return [state[currentSelector]];
+            }
+        }
+
+        let rest = selectors.slice();
+        rest.shift();
+        if (getSelectorType(currentSelector) == 'FILTER' && Array.isArray(state)) {
+            return [].concat.apply([], state.filter(filterCurried(currentSelector)).map(function(x) {
+                return recFind(x, rest);
+            }));
+        } else {
+            return [].concat.apply([], recFind(state[currentSelector], rest));
+        }
+    }
+    /** PUBLIC FUNCTIONS */
 
 /*
  * Merges element into state as a new immutable.
@@ -121,6 +149,13 @@ c.parsePath = function(path) {
     return elements;
 
 }
+/*
+ * Find matching elements and returns them.
+ *
+ */
+c.find = function(state, pathstring) {
+    return recFind(state, c.parsePath(pathstring));
+}
 
 /*
  * Applies func to all the elements matching the pathstring, returning a new state;
@@ -134,13 +169,16 @@ c.map = function(state, pathstring, func) {
     return c.pathWithArray(state, c.parsePath(pathstring), func, 'map');
 
 }
-
+/*
+* Finds elements and removes them from the returned state. Immutable.
+*
+*/
 c.extract = function(state, pathstring, flag) {
     var elements = [];
     let selectors = c.parsePath(pathstring);
     var lastFilter = selectors[selectors.length - 1]
     var newState = c.pathWithArray(state, selectors, function(x) {
-        if (filter(x, lastFilter)) {
+        if (filterApply(x, lastFilter)) {
             elements.push(x);
             return false;
         }
@@ -164,7 +202,7 @@ c.pathWithArray = function(state, selectors, func, flag) {
         case 'FILTER':
             return recFilter(state, selectors, func, flag);
         default:
-            throw "COULDNT MATCH SELECTOR"
+            throw "COULDN'T MATCH SELECTOR"
     }
 };
 
