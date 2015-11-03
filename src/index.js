@@ -124,6 +124,9 @@ c.path = function(state,pathstring,func) {
 }
 
 c.pathWithArray = function(state,selectors,func) {
+    if(selectors.length === 0) {
+        return c.dup(state,func(state));
+    }
     //console.log('called patharray', state, ':', selectors);
     let currentSelector = selectors[0];
     if(getSelectorType(currentSelector) == 'MAP') {
@@ -134,10 +137,11 @@ c.pathWithArray = function(state,selectors,func) {
     }
 };
 
+
 /*
 * Redux utility. Wraps a function to handle only the action.type == type. 
 *
-*/ 
+*/
 c.handle = function(type, f) {
     return function(state, action) {
         if (action.type != type) return state;
