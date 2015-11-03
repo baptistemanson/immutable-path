@@ -9,34 +9,44 @@ var c = {};
  */
 function getSelectorType(selector) {
     //todo add more type of selectors
-    if (selector.indexOf('[') == -1) return 'MAP';
-    return 'FILTER';
+    if (selector.indexOf('[') !== -1) return 'FILTER';
+    //if (selector.indexOf('{' !== -1)) return '';
+    return 'MAP';
 }
 
 /*
-* Returns {field:'key',value:'val'} when given '[key=val]'
-*/
+ * Returns {field:'key',value:'val'} when given '[key=val]'
+ */
 function parseFilter(selector) {
     //can be improved greatly, by supporting several filters for instance
-    let s = selector.substring(1,selector.length-1).split('=');
-    return {field:s[0],value:s[1]};
+    let s = selector.substring(1, selector.length - 1).split('=');
+    return {
+        field: s[0],
+        value: s[1]
+    };
 }
 
+var filter = function(element, filterString) {
+    let filter = parseFilter(filterString);
+    return element[filter.field] == filter.value;
+
+}
 
 /*
  * Applies a recursive filter.
-* @see c.pathWithArray
+ * @see c.pathWithArray
  */
-var recFilter = function(state,selectors,func) {
-    //console.log('calling recFilter with state',state,':',selectors)
-    let filter = parseFilter(selectors[0])
+var recFilter = function(state, selectors, func, flag) {
+    //console.log('calling recFilter with state', state, ':', selectors)
     let s = selectors.slice();
     s.shift();
-    if(state[filter.field] != filter.value) {
-        return state
+    if (filter(state, selectors[0])) {
+        return c.pathWithArray(state, s, func, flag)
     }
-    return c.pathWithArray(state,s,func)
+    return state
 }
+
+
 
 /*
  * Applies a recursive map. 
@@ -44,8 +54,8 @@ var recFilter = function(state,selectors,func) {
  * It is the function holding the termination of the recursion.
  * @see c.pathWithArray
  */
-var recMap = function(state, selectors, func) {
-    
+var recMap = function(state, selectors, func, flag) {
+    //console.log("calling recMap", state, ':', selectors)
     let currentSelector = selectors[0]; // the selector we will apply
     var output = {}; //the new immutable output.
 
@@ -55,11 +65,10 @@ var recMap = function(state, selectors, func) {
         if (Array.isArray(state[currentSelector])) {
             output[currentSelector] = state[currentSelector].map(func);
             return c.dup(state, output);
-        }
-        else {
+        } else {
             output[currentSelector] = func(state[currentSelector]);
             //no need to duplicate, it should be done on the level above.
-            return c.dup(state,output);
+            return c.dup(state, output);
         }
 
     } //recursion 
@@ -68,10 +77,13 @@ var recMap = function(state, selectors, func) {
             selectors.shift();
             //array/object
             if (Array.isArray(state[currentSelector])) {
-                output[currentSelector] = (state[currentSelector]).map(element => c.pathWithArray(element, selectors, func));
-            }
-            else {
-                output[currentSelector] = c.pathWithArray(state[currentSelector], selectors, func);
+                if (selectors.length == 1 && flag == 'filter') {
+                    output[currentSelector] = (state[currentSelector]).filter(func);
+                } else {
+                    output[currentSelector] = (state[currentSelector]).map(element => c.pathWithArray(element, selectors, func, flag));
+                }
+            } else {
+                output[currentSelector] = c.pathWithArray(state[currentSelector], selectors, func, flag);
             }
             return c.dup(state, output);
         } else {
@@ -85,63 +97,82 @@ var recMap = function(state, selectors, func) {
 /** PUBLIC FUNCTIONS */
 
 /*
-* Merges element into state as a new immutable.
-* 
-*/
+ * Merges element into state as a new immutable.
+ * 
+ */
 c.dup = function(state, element) {
     return Object.assign({}, state, element);
 }
 
 /*
-* Parses a path, from an array of selectors.
-* 
-* level1.level22[id=1].val   becomes  ['level1','level22','[id=1]','val']
-*/
+ * Parses a path, from an array of selectors.
+ * 
+ * level1.level22[id=1].val   becomes  ['level1','level22','[id=1]','val']
+ */
 c.parsePath = function(path) {
     let reg = /(\w+)(\[[^\]]+\])?\.?/g;
     var elements = [];
     var match;
-    while((match = reg.exec(path)) !== null) {
+    while ((match = reg.exec(path)) !== null) {
         elements.push(match[1]);
         //filter
-        if(match[2] !== undefined) elements.push(match[2])
+        if (match[2] !== undefined) elements.push(match[2])
     }
     return elements;
 
 }
 
 /*
-* Applies func to all the elements matching the pathstring, returning a new state;
-* The original state is not modified.
-
-* Use this function when you want to use immutable structures, for fast comparison.
-* Redux & React compatible.
-*
-*/
-c.path = function(state,pathstring,func) {
-    return c.pathWithArray(state,c.parsePath(pathstring),func);
+ * Applies func to all the elements matching the pathstring, returning a new state;
+ * The original state is not modified.
+ 
+ * Use this function when you want to use immutable structures, for fast comparison.
+ * Redux & React compatible.
+ *
+ */
+c.path = function(state, pathstring, func) {
+    return c.pathWithArray(state, c.parsePath(pathstring), func, 'map');
 
 }
 
-c.pathWithArray = function(state,selectors,func) {
-    if(selectors.length === 0) {
-        return c.dup(state,func(state));
+c.extract = function(state, pathstring, flag) {
+    var elements = [];
+    let selectors = c.parsePath(pathstring);
+    var lastFilter = selectors[selectors.length - 1]
+    var newState = c.pathWithArray(state, selectors, function(x) {
+        if (filter(x, lastFilter)) {
+            elements.push(x);
+            return false;
+        }
+        return true;
+    }, 'filter');
+    return {
+        elements: elements,
+        state: newState
+    };
+}
+
+c.pathWithArray = function(state, selectors, func, flag) {
+    //console.log("\n");
+    //console.log('called patharray', state, ':', selectors, ' : ' + flag);
+    if (selectors.length === 0) {
+        return c.dup(state, func(state));
     }
-    //console.log('called patharray', state, ':', selectors);
-    let currentSelector = selectors[0];
-    if(getSelectorType(currentSelector) == 'MAP') {
-        return recMap(state,selectors,func)
-    }
-    else {
-        return recFilter(state,selectors,func)
+    switch (getSelectorType(selectors[0])) {
+        case 'MAP':
+            return recMap(state, selectors, func, flag);
+        case 'FILTER':
+            return recFilter(state, selectors, func, flag);
+        default:
+            throw "COULDNT MATCH SELECTOR"
     }
 };
 
 
 /*
-* Redux utility. Wraps a function to handle only the action.type == type. 
-*
-*/
+ * Redux utility. Wraps a function to handle only the action.type == type. 
+ *
+ */
 c.handle = function(type, f) {
     return function(state, action) {
         if (action.type != type) return state;
