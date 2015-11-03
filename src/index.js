@@ -39,7 +39,7 @@ c.path = function(state,pathstring,func) {
 }
 
 c.pathWithArray = function(state,selectors,func) {
-    console.log('called patharray', state, ':', selectors);
+    //console.log('called patharray', state, ':', selectors);
     let currentSelector = selectors[0];
     if(getSelectorType(currentSelector) == 'MAP') {
         return c.recMap(state,selectors,func)
@@ -51,14 +51,14 @@ c.pathWithArray = function(state,selectors,func) {
 
 
 c.recFilter = function(state,selectors,func) {
-    console.log('calling recFilter with state',state,':',selectors)
+    //console.log('calling recFilter with state',state,':',selectors)
     let filter = parseFilter(selectors[0])
     let s = selectors.slice();
     s.shift();
     if(state[filter.field] != filter.value) {
         return state
     }
-    return c.pathWithArray(state,s,func)
+    return c.pathWithArray(state,s,func)∏
 }
 
 // call it on a POJO structure to get a new structure with a path of selectors.
