@@ -33,6 +33,7 @@ newState will contain:
                     level3: 3
                 },
                 level22: [{
+                    id:1,
                     val: 11
                 }, {
                     id: 2,

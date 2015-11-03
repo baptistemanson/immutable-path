@@ -1,0 +1,23 @@
+{
+  "name": "immutable-path",
+  "version": "1.0.0",
+  "description": "Immutable path is a simple xpath-like tool, for handling POJO as immutables.",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "jasmine-node"
+  },
+  "keywords": [
+    "POJO",
+    "immutable",
+    "redux",
+    "flux",
+    "react"
+  ],
+  "author": "Baptiste Manson",
+  "license": "MIT",
+  "devDependencies": {
+    "deep-freeze-strict": "^1.1.1",
+    "jasmine-node": "^1.14.5",
+    "lodash": "^3.10.1"
+  }
+}

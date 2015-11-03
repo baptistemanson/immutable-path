@@ -29,6 +29,7 @@ describe('immutable path', () => {
                     level3: 3
                 },
                 level22: [{
+                    id:1,
                     val: 11
                 }, {
                     id: 2,
@@ -41,7 +42,7 @@ describe('immutable path', () => {
         var newState = c.path(state, 'level1.level22[id=1].val', x => x + 10);
 
         expect(_.isEqual(newState, expectedNewState)).toBe(true);
-        
+
         expect(state.level1.level22[0].val).toBe(1);
         expect(state.level1.level21 === newState.level1.level21).toBe(true);
         expect(state.level1 !== newState.level1).toBe(true);

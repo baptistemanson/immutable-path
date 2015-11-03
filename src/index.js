@@ -39,7 +39,7 @@ c.path = function(state,pathstring,func) {
 }
 
 c.pathWithArray = function(state,selectors,func) {
-    //console.log('called', state, ':', selectors);
+    console.log('called patharray', state, ':', selectors);
     let currentSelector = selectors[0];
     if(getSelectorType(currentSelector) == 'MAP') {
         return c.recMap(state,selectors,func)
@@ -51,7 +51,7 @@ c.pathWithArray = function(state,selectors,func) {
 
 
 c.recFilter = function(state,selectors,func) {
-    //console.log('calling recFilter with',state,':',selectors)
+    console.log('calling recFilter with state',state,':',selectors)
     let filter = parseFilter(selectors[0])
     let s = selectors.slice();
     s.shift();
@@ -78,7 +78,7 @@ c.recMap = function(state, selectors, func) {
         else {
             output[currentSelector] = func(state[currentSelector]);
             //no need to duplicate, it should be done on the level above.
-            return output;
+            return c.dup(state,output);
         }
 
     } //recursion 
