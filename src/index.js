@@ -58,7 +58,7 @@ c.recFilter = function(state,selectors,func) {
     if(state[filter.field] != filter.value) {
         return state
     }
-    return c.pathWithArray(state,s,func)∏
+    return c.pathWithArray(state,s,func)
 }
 
 // call it on a POJO structure to get a new structure with a path of selectors.
