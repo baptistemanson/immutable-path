@@ -44,9 +44,7 @@ let state = {
         */
   ```
 
-You can also extract elements with this lib, like so:
-
-### Extract elements
+### Extract objects
 
 ```javascript
 var path = require('immutable-path');
@@ -88,7 +86,7 @@ let state = {
    */
   
 ```
-### Find elements
+### Find object
 
 ```javascript
 //with the same dataset
@@ -97,6 +95,14 @@ let found = path.find(state, 'app.todos[priority=1])';
     found = [{id:1,priority:1},{id:3,priority:3}];
 */
 ```
+
+### Move one object
+
+Move is limited to grabbing a single element and putting it into an array.
+
+```javascript
+
+let newState = path.move('app.todos[id=1])','app.doneItems');
 
 ## Install with NPM
   

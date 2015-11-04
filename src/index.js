@@ -202,6 +202,34 @@ c.extract = function(state, pathstring, flag) {
     };
 }
 
+function splitLast(pathString) {
+    let ar = c.parsePath(pathString);
+    let last = ar[ar.length-1];
+    ar.splice(-1,1);
+    return {path:c.buildPath(ar),property:last};
+}
+
+
+/**
+*
+* Move a single element into an array.
+*/
+c.move = function(state, srcPath , destPath) {
+   
+    //remove the attachment card from where it is (has to be in play).
+    var xtract = c.extract(state, srcPath);
+    if(xtract.elements.length > 1) throw 'Moving several elements at once is not yet supported'
+    console.log(splitLast(destPath));
+    //add the attached card in the player zone
+    return  c.map(xtract.state, splitLast(destPath).path, function(parent) {
+        if(!Array.isArray(parent[splitLast(destPath).property])) throw 'Move only works with arrays as destinations'
+        var obj = {};
+        obj[splitLast(destPath).property] = parent[splitLast(destPath).property].slice();
+        obj[splitLast(destPath).property].push(xtract.elements[0])
+        return c.dup(parent,obj);
+    })
+};
+
 c.pathWithArray = function(state, selectors, func, flag) {
     //console.log("\n");
     //console.log('called patharray', state, ':', selectors, ' : ' + flag);

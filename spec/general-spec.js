@@ -8,6 +8,10 @@ var debug = function(args) {
     console.log(JSON.stringify(args));
 }
 
+var eq = function(one,two) {
+    return _.isEqual(one,two);
+}
+
 describe('immutable path', () => {
     it('simple use case', () => {
         let state = {
@@ -44,7 +48,6 @@ describe('immutable path', () => {
         deepFreeze(state);
 
         var newState = c.map(state, 'level1.level22[id=1].val', x => x + 10);
-        debug(newState)
 
         expect(_.isEqual(newState, expectedNewState)).toBe(true);
 
@@ -95,11 +98,10 @@ describe('immutable path', () => {
         deepFreeze(state);
 
         var filteredElement = c.extract(state, 'level1.level22[val=1]');
-        expect(_.isEqual(filteredElement.elements, expectedElements)).toBe(true);
-        expect(_.isEqual(filteredElement.state, expectedNewState)).toBe(true);
-
-
+        expect(eq(filteredElement.elements, expectedElements)).toBe(true);
+        expect(eq(filteredElement.state, expectedNewState)).toBe(true);
     });
+
     it('finds elements', () => {
         let state = {
             level1: {
@@ -118,9 +120,51 @@ describe('immutable path', () => {
                 }]
             }
         };
-        expect(c.find(state,'level1.level22[id=1].val')).toEqual([1]);
-        expect(c.find(state,'level1.level21.level3')).toEqual([3]);
-        expect(c.find(state,'level1.level22[val=1]')).toEqual([{id:1,val:1},{id:3,val:1}]);
+        expect(c.find(state, 'level1.level22[id=1].val')).toEqual([1]);
+        expect(c.find(state, 'level1.level21.level3')).toEqual([3]);
+        expect(c.find(state, 'level1.level22[val=1]')).toEqual([{
+            id: 1,
+            val: 1
+        }, {
+            id: 3,
+            val: 1
+        }]);
+    });
+
+    it("moves element", () => {
+            let state = {
+                elements: {
+                    activeTodos: [{
+                        id: 1,
+                        val: "My task done"
+                    }, {
+                        id: 2,
+                        val: "My task not done"
+                    }],
+                    doneTodos: [{
+                        id: 3,
+                        val: "My task done long before"
+                    }]
+                }
+            }
+            let expectedNewState = {
+                "elements": {
+                    "activeTodos": [{
+                        "id": 2,
+                        "val": "My task not done"
+                    }],
+                    "doneTodos": [{
+                        "id": 3,
+                        "val": "My task done long before"
+                    }, {
+                        "id": 1,
+                        "val": "My task done"
+                    }]
+                }
+            }
+
+            let newState = c.move(state, 'elements.activeTodos[id=1]', 'elements.doneTodos');
+            expect(eq(newState,expectedNewState)).toBe(true);
     });
 
 });
