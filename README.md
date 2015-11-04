@@ -44,7 +44,7 @@ let state = {
         */
   ```
 
-### Extract objects
+### Extract one or several objects
 
 ```javascript
 var path = require('immutable-path');
@@ -86,7 +86,10 @@ let state = {
    */
   
 ```
-### Find object
+### Find one or several object(s)
+
+Sometimes you want to denormalize some data into another, leaving the first item untouched.
+Find can help you checking the value of such an object. Don't mutate the result of find, as it would defeat the purpose of this lib.
 
 ```javascript
 //with the same dataset
@@ -96,13 +99,16 @@ let found = path.find(state, 'app.todos[priority=1])';
 */
 ```
 
-### Move one object
+### Move one object into an array.
 
 Move is limited to grabbing a single element and putting it into an array.
 
 ```javascript
 
 let newState = path.move('app.todos[id=1])','app.doneItems');
+
+```
+
 
 ## Install with NPM
   
