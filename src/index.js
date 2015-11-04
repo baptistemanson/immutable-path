@@ -149,6 +149,18 @@ c.parsePath = function(path) {
     return elements;
 
 }
+
+c.buildPath = function(pathArray) {
+    let path = pathArray[0];
+    for(var i=1 ; i<pathArray.length ; i++) {
+        if(getSelectorType(pathArray[i]) == 'FILTER') {
+            path = path + pathArray[i];
+        }
+        else path = path + '.' + pathArray[i];
+    }
+    return path;
+};
+
 /*
  * Find matching elements and returns them.
  *
