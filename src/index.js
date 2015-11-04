@@ -202,7 +202,7 @@ c.extract = function(state, pathstring, flag) {
     };
 }
 
-function splitLast(pathString) {
+c.splitLast = function(pathString){
     let ar = c.parsePath(pathString);
     let last = ar[ar.length-1];
     ar.splice(-1,1);
@@ -221,11 +221,11 @@ c.move = function(state, srcPath , destPath) {
     if(xtract.elements.length > 1) throw 'Moving several elements at once is not yet supported'
     //console.log(splitLast(destPath));
     //add the attached card in the player zone
-    return  c.map(xtract.state, splitLast(destPath).path, function(parent) {
-        if(!Array.isArray(parent[splitLast(destPath).property])) throw 'Move only works with arrays as destinations'
+    return  c.map(xtract.state, c.splitLast(destPath).path, function(parent) {
+        if(!Array.isArray(parent[c.splitLast(destPath).property])) throw 'Move only works with arrays as destinations'
         var obj = {};
-        obj[splitLast(destPath).property] = parent[splitLast(destPath).property].slice();
-        obj[splitLast(destPath).property].push(xtract.elements[0])
+        obj[c.splitLast(destPath).property] = parent[c.splitLast(destPath).property].slice();
+        obj[c.splitLast(destPath).property].push(xtract.elements[0])
         return c.dup(parent,obj);
     })
 };
