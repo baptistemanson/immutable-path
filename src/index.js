@@ -219,7 +219,7 @@ c.move = function(state, srcPath , destPath) {
     //remove the attachment card from where it is (has to be in play).
     var xtract = c.extract(state, srcPath);
     if(xtract.elements.length > 1) throw 'Moving several elements at once is not yet supported'
-    console.log(splitLast(destPath));
+    //console.log(splitLast(destPath));
     //add the attached card in the player zone
     return  c.map(xtract.state, splitLast(destPath).path, function(parent) {
         if(!Array.isArray(parent[splitLast(destPath).property])) throw 'Move only works with arrays as destinations'
