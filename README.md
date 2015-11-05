@@ -1,16 +1,13 @@
 # immutable-path
-Immutable path is a simple objects selectors and modifiers applied to the immutability concept.
+Immutable path is a simple micro library providing js object selectors and modifiers.
 
-The design choices are:
-- stick the principle of immutability: modification always return a new instance of the object.
-- free optin and optout: no need to wrap all your objects in new classes.
-- super lightweight
+The design goals are:
+- stick to immutability: modification always returns a new instance of the object.
+- free optin and optout: no need to wrap all your plain objects in classes, no init.
+- lightweight
 
 Great for Redux, React.
-It doesn't force you to use any API like Immutable.js. You are also free to use any other lib or method, optin or optout per reducer/function/module.
-
-Nowadays, the view pulls whatever is needed from the application state. Therefore we feel the need to provide selectors on the state as jquery was in its time the selector of the DOM Nodes.
-
+It doesn't force you to use any API like Immutable.js. You are also free to use any other lib or method, optin or optout per reducer/function/module, when you need it.
 
 ## Usage
 
