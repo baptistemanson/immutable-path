@@ -1,8 +1,21 @@
 # immutable-path
-Immutable path is a simple xpath-like tool, for handling POJO as immutables.
+Immutable path is a simple xpath-like tool, jquery-like state selectors and modifiers applied to the immutability concept.
 
-It is useful for libraries like redux, which promotes immutability, but doesn't provide tools to do so.
-Avoids callback hell at the expense of a bit of speed in state change.
+The main design decisions in this lib were:
+- all operations follow the principle of immutability: always return a new modified instance of the object.
+- free optin and optout: no need to wrap all your objects in new classes.
+- support for arrays and indexed collections
+
+Great for Redux.
+
+We inverted the responsibility in new tools. The view pulls whatever is needed from a state. Therefore we feel the need to provide selectors on this state as jquery was in its time the selector of the DOM Nodes.
+
+
+
+
+It doesn't force you to use any API like Immutable.js. You are also free to use any other lib or method, optin or optout.
+
+For instance if you use
 
 Use at your own risk, this lib is really a work in progress.
 
