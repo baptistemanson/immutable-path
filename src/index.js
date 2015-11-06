@@ -21,7 +21,7 @@ function getSelectorType(selector) {
  */
 function parseFilter(selector) {
     //can be improved greatly, by supporting several filters for instance
-    let s = selector.substring(1, selector.length - 1).split('=');
+    var s = selector.substring(1, selector.length - 1).split('=');
     return {
         field: s[0],
         value: s[1]
@@ -29,7 +29,7 @@ function parseFilter(selector) {
 }
 
 var filterApply = function(element, filterString) {
-    let filter = parseFilter(filterString);
+    var filter = parseFilter(filterString);
     return element[filter.field] == filter.value;
 }
 
@@ -39,7 +39,7 @@ var filterApply = function(element, filterString) {
  */
 var recFilter = function(state, selectors, func, flag) {
     //console.log('calling recFilter with state', state, ':', selectors)
-    let s = selectors.slice();
+    var s = selectors.slice();
     s.shift();
     if (filterApply(state, selectors[0])) {
         return c.pathWithArray(state, s, func, flag)
@@ -63,7 +63,7 @@ var filterCurried = function(filterString) {
  */
 var recMap = function(state, selectors, func, flag) {
     //console.log("calling recMap", state, ':', selectors)
-    let currentSelector = selectors[0]; // the selector we will apply
+    var currentSelector = selectors[0]; // the selector we will apply
     var output = {}; //the new immutable output.
 
     //termination
@@ -103,7 +103,7 @@ var recMap = function(state, selectors, func, flag) {
 
 var recFind = function(state, selectors) {
 
-        let currentSelector = selectors[0];
+        var currentSelector = selectors[0];
         if (selectors.length == 1) { //termination
             if (getSelectorType(currentSelector) == 'FILTER') {
                 return state.filter(filterCurried(currentSelector));
@@ -112,7 +112,7 @@ var recFind = function(state, selectors) {
             }
         }
 
-        let rest = selectors.slice();
+        var rest = selectors.slice();
         rest.shift();
         if (getSelectorType(currentSelector) == 'FILTER' && Array.isArray(state)) {
             return [].concat.apply([], state.filter(filterCurried(currentSelector)).map(function(x) {
@@ -138,7 +138,7 @@ c.dup = function(state, element) {
  * level1.level22[id=1].val   becomes  ['level1','level22','[id=1]','val']
  */
 c.parsePath = function(path) {
-    let reg = /(\w+)(\[[^\]]+\])?\.?/g;
+    var reg = /(\w+)(\[[^\]]+\])?\.?/g;
     var elements = [];
     var match;
     while ((match = reg.exec(path)) !== null) {
@@ -151,7 +151,7 @@ c.parsePath = function(path) {
 }
 
 c.buildPath = function(pathArray) {
-    let path = pathArray[0];
+    var path = pathArray[0];
     for(var i=1 ; i<pathArray.length ; i++) {
         if(getSelectorType(pathArray[i]) == 'FILTER') {
             path = path + pathArray[i];
@@ -187,7 +187,7 @@ c.map = function(state, pathstring, func) {
 */
 c.extract = function(state, pathstring, flag) {
     var elements = [];
-    let selectors = c.parsePath(pathstring);
+    var selectors = c.parsePath(pathstring);
     var lastFilter = selectors[selectors.length - 1]
     var newState = c.pathWithArray(state, selectors, function(x) {
         if (filterApply(x, lastFilter)) {
@@ -203,8 +203,8 @@ c.extract = function(state, pathstring, flag) {
 }
 
 c.splitLast = function(pathString){
-    let ar = c.parsePath(pathString);
-    let last = ar[ar.length-1];
+    var ar = c.parsePath(pathString);
+    var last = ar[ar.length-1];
     ar.splice(-1,1);
     return {path:c.buildPath(ar),property:last};
 }
