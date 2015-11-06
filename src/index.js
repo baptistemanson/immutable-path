@@ -87,7 +87,7 @@ var recMap = function(state, selectors, func, flag) {
                 if (selectors.length == 1 && flag == 'filter') {
                     output[currentSelector] = (state[currentSelector]).filter(func);
                 } else {
-                    output[currentSelector] = (state[currentSelector]).map(function(element) {c.pathWithArray(element, selectors, func, flag)});
+                    output[currentSelector] = (state[currentSelector]).map(function(element) {return c.pathWithArray(element, selectors, func, flag)});
                 }
             } else {
                 output[currentSelector] = c.pathWithArray(state[currentSelector], selectors, func, flag);
