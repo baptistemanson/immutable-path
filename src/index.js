@@ -87,7 +87,9 @@ var recMap = function(state, selectors, func, flag) {
                 if (selectors.length == 1 && flag == 'filter') {
                     output[currentSelector] = (state[currentSelector]).filter(func);
                 } else {
-                    output[currentSelector] = (state[currentSelector]).map(function(element) {return c.pathWithArray(element, selectors, func, flag)});
+                    output[currentSelector] = (state[currentSelector]).map(function(element) {
+                        return c.pathWithArray(element, selectors, func, flag)
+                    });
                 }
             } else {
                 output[currentSelector] = c.pathWithArray(state[currentSelector], selectors, func, flag);
@@ -105,10 +107,15 @@ var recFind = function(state, selectors) {
 
         var currentSelector = selectors[0];
         if (selectors.length == 1) { //termination
-            if (getSelectorType(currentSelector) == 'FILTER') {
+            if (getSelectorType(currentSelector) == 'FILTER' && Array.isArray(state)) {
                 return state.filter(filterCurried(currentSelector));
             } else {
-                return [state[currentSelector]];
+                if (state[currentSelector] !== undefined) {
+                    return [state[currentSelector]];
+                }
+                else {
+                    return [];
+                }
             }
         }
 
@@ -119,7 +126,12 @@ var recFind = function(state, selectors) {
                 return recFind(x, rest);
             }));
         } else {
-            return [].concat.apply([], recFind(state[currentSelector], rest));
+            if (Array.isArray(state)) {
+                return [].concat.apply([],state.map(function(x) {
+                    return recFind(x, selectors);
+                }));
+            } else
+                return recFind(state[currentSelector], rest);
         }
     }
     /** PUBLIC FUNCTIONS */
@@ -152,11 +164,10 @@ c.parsePath = function(path) {
 
 c.buildPath = function(pathArray) {
     var path = pathArray[0];
-    for(var i=1 ; i<pathArray.length ; i++) {
-        if(getSelectorType(pathArray[i]) == 'FILTER') {
+    for (var i = 1; i < pathArray.length; i++) {
+        if (getSelectorType(pathArray[i]) == 'FILTER') {
             path = path + pathArray[i];
-        }
-        else path = path + '.' + pathArray[i];
+        } else path = path + '.' + pathArray[i];
     }
     return path;
 };
@@ -178,13 +189,13 @@ c.find = function(state, pathstring) {
  *
  */
 c.map = function(state, pathstring, func) {
-    return c.pathWithArray(state, c.parsePath(pathstring), func, 'map');
+        return c.pathWithArray(state, c.parsePath(pathstring), func, 'map');
 
-}
-/*
-* Finds elements and removes them from the returned state. Immutable.
-*
-*/
+    }
+    /*
+     * Finds elements and removes them from the returned state. Immutable.
+     *
+     */
 c.extract = function(state, pathstring, flag) {
     var elements = [];
     var selectors = c.parsePath(pathstring);
@@ -202,31 +213,34 @@ c.extract = function(state, pathstring, flag) {
     };
 }
 
-c.splitLast = function(pathString){
+c.splitLast = function(pathString) {
     var ar = c.parsePath(pathString);
-    var last = ar[ar.length-1];
-    ar.splice(-1,1);
-    return {path:c.buildPath(ar),property:last};
+    var last = ar[ar.length - 1];
+    ar.splice(-1, 1);
+    return {
+        path: c.buildPath(ar),
+        property: last
+    };
 }
 
 
 /**
-*
-* Move a single element into an array.
-*/
-c.move = function(state, srcPath , destPath) {
-   
+ *
+ * Move a single element into an array.
+ */
+c.move = function(state, srcPath, destPath) {
+
     //remove the attachment card from where it is (has to be in play).
     var xtract = c.extract(state, srcPath);
-    if(xtract.elements.length > 1) throw 'Moving several elements at once is not yet supported'
-    //console.log(splitLast(destPath));
-    //add the attached card in the player zone
-    return  c.map(xtract.state, c.splitLast(destPath).path, function(parent) {
-        if(!Array.isArray(parent[c.splitLast(destPath).property])) throw 'Move only works with arrays as destinations'
+    if (xtract.elements.length > 1) throw 'Moving several elements at once is not yet supported'
+        //console.log(splitLast(destPath));
+        //add the attached card in the player zone
+    return c.map(xtract.state, c.splitLast(destPath).path, function(parent) {
+        if (!Array.isArray(parent[c.splitLast(destPath).property])) throw 'Move only works with arrays as destinations'
         var obj = {};
         obj[c.splitLast(destPath).property] = parent[c.splitLast(destPath).property].slice();
         obj[c.splitLast(destPath).property].push(xtract.elements[0])
-        return c.dup(parent,obj);
+        return c.dup(parent, obj);
     })
 };
 
