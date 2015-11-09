@@ -267,7 +267,7 @@ c.reduceReducersLazy = function() {
     var arg = arguments;
     return function(state, action) {
         for (var i = 0; i < arg.length; i++) {
-            let newState = arg[i](state, action);
+            var newState = arg[i](state, action);
             if (newState !== state) return newState;
         }
         return state;
