@@ -58,45 +58,46 @@ var filterCurried = function(filterString) {
 /*
  * Applies a recursive map. 
  *
+ *
  * It is the function holding the termination of the recursion.
  * @see c.pathWithArray
  */
 var recMap = function(state, selectors, func, flag) {
     //console.log("calling recMap", state, ':', selectors)
-    var currentSelector = selectors[0]; // the selector we will apply
+    var selector = selectors[0]; // the selector we will apply
     var output = {}; //the new immutable output.
 
     //termination
     if (selectors.length == 1) {
         //array/object
-        if (Array.isArray(state[currentSelector])) {
-            output[currentSelector] = state[currentSelector].map(func);
+        if (Array.isArray(state[selector])) {
+            output[selector] = state[selector].map(func);
             return c.dup(state, output);
         } else {
-            output[currentSelector] = func(state[currentSelector]);
+            output[selector] = func(state[selector]);
             //no need to duplicate, it should be done on the level above.
             return c.dup(state, output);
         }
 
     } //recursion 
     else {
-        if (state && state[currentSelector] !== undefined) {
+        if (state && state[selector] !== undefined) {
             selectors.shift();
             //array/object
-            if (Array.isArray(state[currentSelector])) {
+            if (Array.isArray(state[selector])) {
                 if (selectors.length == 1 && flag == 'filter') {
-                    output[currentSelector] = (state[currentSelector]).filter(func);
+                    output[selector] = (state[selector]).filter(func);
                 } else {
-                    output[currentSelector] = (state[currentSelector]).map(function(element) {
+                    output[selector] = (state[selector]).map(function(element) {
                         return c.pathWithArray(element, selectors, func, flag)
                     });
                 }
             } else {
-                output[currentSelector] = c.pathWithArray(state[currentSelector], selectors, func, flag);
+                output[selector] = c.pathWithArray(state[selector], selectors, func, flag);
             }
             return c.dup(state, output);
         } else {
-            throw currentSelector + " Not found"
+            throw selector + " Not found"
         }
 
     }
@@ -105,13 +106,13 @@ var recMap = function(state, selectors, func, flag) {
 
 var recFind = function(state, selectors) {
 
-        var currentSelector = selectors[0];
+        var selector = selectors[0];
         if (selectors.length == 1) { //termination
-            if (getSelectorType(currentSelector) == 'FILTER' && Array.isArray(state)) {
-                return state.filter(filterCurried(currentSelector));
+            if (getSelectorType(selector) == 'FILTER' && Array.isArray(state)) {
+                return state.filter(filterCurried(selector));
             } else {
-                if (state[currentSelector] !== undefined) {
-                    return [state[currentSelector]];
+                if (state[selector] !== undefined) {
+                    return [state[selector]];
                 } else {
                     return [];
                 }
@@ -120,8 +121,8 @@ var recFind = function(state, selectors) {
 
         var rest = selectors.slice();
         rest.shift();
-        if (getSelectorType(currentSelector) == 'FILTER' && Array.isArray(state)) {
-            return [].concat.apply([], state.filter(filterCurried(currentSelector)).map(function(x) {
+        if (getSelectorType(selector) == 'FILTER' && Array.isArray(state)) {
+            return [].concat.apply([], state.filter(filterCurried(selector)).map(function(x) {
                 return recFind(x, rest);
             }));
         } else {
@@ -130,7 +131,7 @@ var recFind = function(state, selectors) {
                     return recFind(x, selectors);
                 }));
             } else
-                return recFind(state[currentSelector], rest);
+                return recFind(state[selector], rest);
         }
     }
     /** PUBLIC FUNCTIONS */
@@ -180,7 +181,10 @@ c.find = function(state, pathstring) {
 }
 
 /*
- * Applies func to all the elements matching the pathstring, returning a new state;
+ * Applies func to all the elements matching the pathstring, returning a new state
+ * 
+ * It always returns a new state, even if the function doesn't change anything, so wrap the map function into something like handle to ditch treatment if needed
+ *  
  * The original state is not modified.
  
  * Use this function when you want to use immutable structures, for fast comparison.
