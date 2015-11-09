@@ -7,6 +7,7 @@ The design goals are:
 - lightweight
 
 Great for Redux, React.
+
 It doesn't force you to use any API like Immutable.js. You are also free to use any other lib or method, optin or optout per reducer/function/module, when you need it.
 
 ## Usage
@@ -91,8 +92,7 @@ let state = {
 ```
 ### Find one or several object(s)
 
-Sometimes you want to denormalize some data into another, leaving the first item untouched.
-Find can help you checking the value of such an object. Don't mutate the result of find, as it would defeat the purpose of this lib.
+Find can help you checking the value of such an object. Don't mutate the result of find, as it would loose immutability.
 
 ```javascript
 //with the same dataset

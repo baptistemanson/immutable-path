@@ -112,8 +112,7 @@ var recFind = function(state, selectors) {
             } else {
                 if (state[currentSelector] !== undefined) {
                     return [state[currentSelector]];
-                }
-                else {
+                } else {
                     return [];
                 }
             }
@@ -127,7 +126,7 @@ var recFind = function(state, selectors) {
             }));
         } else {
             if (Array.isArray(state)) {
-                return [].concat.apply([],state.map(function(x) {
+                return [].concat.apply([], state.map(function(x) {
                     return recFind(x, selectors);
                 }));
             } else
@@ -260,6 +259,16 @@ c.pathWithArray = function(state, selectors, func, flag) {
     }
 };
 
+c.reduceReducersLazy = function() {
+    var arg = arguments;
+    return function(state, action) {
+        for (var i = 0; i < arg.length; i++) {
+            let newState = arg[i](state, action);
+            if (newState !== state) return newState;
+        }
+
+    }
+}
 
 /*
  * Redux utility. Wraps a function to handle only the action.type == type. 

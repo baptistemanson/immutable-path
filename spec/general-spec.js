@@ -8,8 +8,8 @@ var debug = function(args) {
     console.log(JSON.stringify(args));
 }
 
-var eq = function(one,two) {
-    return _.isEqual(one,two);
+var eq = function(one, two) {
+    return _.isEqual(one, two);
 }
 
 describe('immutable path', () => {
@@ -132,39 +132,62 @@ describe('immutable path', () => {
     });
 
     it("moves element", () => {
-            let state = {
-                elements: {
-                    activeTodos: [{
-                        id: 1,
-                        val: "My task done"
-                    }, {
-                        id: 2,
-                        val: "My task not done"
-                    }],
-                    doneTodos: [{
-                        id: 3,
-                        val: "My task done long before"
-                    }]
-                }
+        let state = {
+            elements: {
+                activeTodos: [{
+                    id: 1,
+                    val: "My task done"
+                }, {
+                    id: 2,
+                    val: "My task not done"
+                }],
+                doneTodos: [{
+                    id: 3,
+                    val: "My task done long before"
+                }]
             }
-            let expectedNewState = {
-                "elements": {
-                    "activeTodos": [{
-                        "id": 2,
-                        "val": "My task not done"
-                    }],
-                    "doneTodos": [{
-                        "id": 3,
-                        "val": "My task done long before"
-                    }, {
-                        "id": 1,
-                        "val": "My task done"
-                    }]
-                }
+        }
+        let expectedNewState = {
+            "elements": {
+                "activeTodos": [{
+                    "id": 2,
+                    "val": "My task not done"
+                }],
+                "doneTodos": [{
+                    "id": 3,
+                    "val": "My task done long before"
+                }, {
+                    "id": 1,
+                    "val": "My task done"
+                }]
             }
+        }
 
-            let newState = c.move(state, 'elements.activeTodos[id=1]', 'elements.doneTodos');
-            expect(eq(newState,expectedNewState)).toBe(true);
+        let newState = c.move(state, 'elements.activeTodos[id=1]', 'elements.doneTodos');
+        expect(eq(newState, expectedNewState)).toBe(true);
     });
+
+    it("lazy evals", () => {
+        let state = {
+            a: 'a',
+            b: 'b',
+            c:'c'
+        };
+        let reducerOne = function(state,action) { return state;}
+
+        let reducerTwo = function(state,action) { return c.dup(state,{b:'changed'});}
+
+        let reducerThree = function(state,action) { return c.dup(state,{c:'changed'});}
+
+        let expected = {
+            a: 'a',
+            b: 'changed',
+            c:'c'
+        };
+        let combined = c.reduceReducersLazy(reducerOne,reducerTwo,reducerThree);
+        let result = combined(state,'');
+        expect(result).toEqual(expected);
+
+    })
 
 });
