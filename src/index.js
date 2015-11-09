@@ -266,6 +266,7 @@ c.reduceReducersLazy = function() {
             let newState = arg[i](state, action);
             if (newState !== state) return newState;
         }
+        return state;
 
     }
 }

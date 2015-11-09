@@ -112,6 +112,19 @@ let newState = path.move('app.todos[id=1])','app.doneItems');
 
 ```
 
+### Combine reducers lazy
+
+```javascript
+let reducerOne = function(state,action) { return Object.assign({},state,{a:'changed'});}
+let reducerTwo = function(state,action) { return Object.assign({},state,{a:'changedSecond'});}
+
+let combined = path.combineReducersLazy(reducerOne,reducerTwo);
+
+/*
+ * As long as reducerOne returns a new state, reducerTwo won't be executed.
+ */
+
+```
 
 ## Install with NPM
   
